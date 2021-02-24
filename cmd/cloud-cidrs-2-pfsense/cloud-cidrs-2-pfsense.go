@@ -3,10 +3,15 @@ package main
 import (
 	"github.com/iteratec/cloud-cidrs-2-pfsense/internal/app/cloud-cidrs-2-pfsense/api"
 	"github.com/iteratec/cloud-cidrs-2-pfsense/internal/app/cloud-cidrs-2-pfsense/handlers"
+	"github.com/iteratec/cloud-cidrs-2-pfsense/internal/pkg/service/logger"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	sharedHandlers "github.com/iteratec/cloud-cidrs-2-pfsense/internal/pkg/handlers"
 )
+
+func init() {
+	logger.InitLogger()
+}
 
 func main() {
 	e := echo.New()
