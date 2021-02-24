@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/iteratec/cloud-cidrs-2-pfsense/internal/app/cloud-cidrs-2-pfsense/api"
 	"github.com/iteratec/cloud-cidrs-2-pfsense/internal/app/cloud-cidrs-2-pfsense/service/aws"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -8,8 +9,8 @@ import (
 
 type CloudCidrsApi struct {}
 
-func (api CloudCidrsApi) FetchAwsCidrs(ctx echo.Context) error  {
-	cidrs, err := aws.FetchAwsCidrs()
+func (api CloudCidrsApi) FetchAwsCidrs(ctx echo.Context, params api.FetchAwsCidrsParams) error  {
+	cidrs, err := aws.FetchAwsCidrs(params.Regions)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}

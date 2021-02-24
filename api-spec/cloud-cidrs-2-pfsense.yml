@@ -11,6 +11,24 @@ paths:
     get:
       summary: Provides current public CIDR's of AWS as a plain text list to be used in pfSense as URL alias.
       operationId: fetchAwsCidrs
+      parameters:
+        - in: query
+          name: regions
+          description: AWS Regions to query CIDR's for.
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+          examples:
+            oneRegion:
+              summary: Example of a single AWS Region
+              value: [eu-central-1]   # ?regions=eu-central-1
+            multipleRegions:
+              summary: Example of multiple AWS Regions
+              value: [eu-central-1,us-west-1,us-east-1]   # ?regions=eu-central-1,us-west-1,us-east-1
       tags:
         - AWS
       responses:

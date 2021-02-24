@@ -14,10 +14,18 @@ type AwsCidrs struct {
 	} `json:"prefixes"`
 }
 
-func (this AwsCidrs) extractIpRanges() string {
+//Extracts just the IP ranges from CIDR's. If regions parameter is set and contains regions,
+//just the IP ranges for that regions are returned.
+func (this AwsCidrs) extractIpRanges(regions *filterRegions) string {
 	ipRanges := ""
 	for _, prefix := range this.Prefixes {
-		ipRanges += fmt.Sprintf("%s\n", prefix.IPPrefix)
+		if regions == nil {
+			ipRanges += fmt.Sprintf("%s\n", prefix.IPPrefix)
+		} else if len(*regions) == 0 {
+			ipRanges += fmt.Sprintf("%s\n", prefix.IPPrefix)
+		} else if regions.contains(prefix.Region) {
+			ipRanges += fmt.Sprintf("%s\n", prefix.IPPrefix)
+		}
 	}
 	return ipRanges
 }
