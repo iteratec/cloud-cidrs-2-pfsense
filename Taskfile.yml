@@ -1,0 +1,70 @@
+# https://taskfile.dev
+
+version: '2'
+
+vars:
+  APP_ROOT: internal/app
+  OPENAPI_ROOT: api-spec
+
+tasks:
+
+  default:
+    cmds:
+      - task: build-all
+
+  # run #################################################################################################
+
+  cloud-cidrs-2-pfsense-run:
+    deps: [ cloud-cidrs-2-pfsense-generate-api-stub ]
+    desc: Runs cloud-cidrs-2-pfsense for local development.
+    cmds:
+      - go run ./cmd/cloud-cidrs-2-pfsense/cloud-cidrs-2-pfsense.go
+
+  # build #################################################################################################
+
+  build-app:
+    cmds:
+      - "{{.FLAGS}} go build -a -tags netgo -ldflags '-w' -o ./dist/{{.APP}} ./cmd/{{.APP}}"
+
+  cloud-cidrs-2-pfsense-build:
+    deps: [ cloud-cidrs-2-pfsense-generate-api-stub ]
+    desc: Builds cloud-cidrs-2-pfsense.
+    cmds:
+      - task: build-app
+        vars: { APP: "cloud-cidrs-2-pfsense", FLAGS: "CGO_ENABLED=0 GOOS=linux GOARCH=amd64" }
+
+  build-all:
+    desc: Builds all applications.
+    cmds:
+      - task: cloud-cidrs-2-pfsense-build
+
+  # code generation #################################################################################################
+
+  generate-api-stub:
+    deps: [ install-golang-binaries ]
+    cmds:
+      - rm -rf {{.TARGET_FOLDER}}/*.gen.go
+      - oapi-codegen -package=api -generate=types {{.OPENAPI_YAML}} > {{.TARGET_FOLDER}}/types.gen.go
+      - oapi-codegen -package=api -generate=server {{.OPENAPI_YAML}} > {{.TARGET_FOLDER}}/server.gen.go
+      - oapi-codegen -package=api -generate=spec {{.OPENAPI_YAML}} > {{.TARGET_FOLDER}}/spec.gen.go
+
+  cloud-cidrs-2-pfsense-generate-api-stub:
+    desc: Generates API stub for cloud-cidrs-2-pfsense from openapi yaml file.
+    cmds:
+      - task: generate-api-stub
+        vars: {
+          TARGET_FOLDER: "{{.APP_ROOT}}/cloud-cidrs-2-pfsense/api",
+          OPENAPI_YAML: "{{.OPENAPI_ROOT}}/cloud-cidrs-2-pfsense.yml"
+        }
+
+  generate-all-api-stubs:
+    desc: Generates API stub for all apps.
+    cmds:
+      - task: cloud-cidrs-2-pfsense-generate-api-stub
+
+  # prerequisites #################################################################################################
+
+  install-golang-binaries:
+    desc: Installs needed binaries.
+    cmds:
+      - go get github.com/deepmap/oapi-codegen/cmd/oapi-codegen

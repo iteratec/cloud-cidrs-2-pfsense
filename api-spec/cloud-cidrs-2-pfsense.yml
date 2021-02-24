@@ -1,0 +1,52 @@
+openapi: '3.0.2'
+info:
+  title: coud-cidrs-2-pfsense
+  version: '1.0'
+
+servers:
+  - url: https://coud-cidrs-2-pfsense.wpt.iteratec.de/v1
+
+paths:
+  /aws/cidr:
+    get:
+      summary: Provides current public CIDR's of AWS as a plain text list to be used in pfSense as URL alias.
+      operationId: fetchAwsCidrs
+      tags:
+        - AWS
+      responses:
+        '200':
+          description: Plain text with one public cidr of AWS per line.
+        '500':
+          $ref: '#/components/responses/DefaultError'
+  /gcp/cidr:
+    get:
+      summary: Provides current public CIDR's of GCP as a plain text list to be used in pfSense as URL alias.
+      operationId: fetchGcpCidrs
+      tags:
+        - GCP
+      responses:
+        '200':
+          description: Plain text with one public cidr of GCP per line.
+        '500':
+          $ref: '#/components/responses/DefaultError'
+            
+
+components:
+
+  schemas:
+
+    CloudCidrs2PfsenseError:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+
+  responses:
+    DefaultError:
+      description: Error in coud-cidrs-2-pfsense.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CloudCidrs2PfsenseError"
